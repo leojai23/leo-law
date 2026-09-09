@@ -13,8 +13,21 @@ Sanhita, 2023** (in force 1 July 2024).
 - Filter by family (homicide, hurt, property, sexual offences, women & marriage,
   forgery, defamation, State offences…).
 - Three status groups: **Mapped/Renumbered**, **New in the BNS**, **Omitted/decriminalised**.
+- **Expand any card ("bare act")** for the full verbatim BNS section text — every
+  sub-section, clause, Exception, Explanation and Illustration — plus a "what
+  changed" note, the corresponding IPC number, and cross-links to related cards.
+- All **358 BNS sections** are embedded (text keyed by section number), so the
+  detail view and related-links work for every provision.
 - 4 reading themes (Day / Sepia / Dark / Night), remembered in `localStorage`.
 - Fully offline after first load; installable to the home screen.
+
+### Source of the statutory text
+`build-scripts/` holds `parse_bns.py` (parses the official BNS bare act into
+`bns_sections.json`) and `build_detail.py` (injects it into `index.html`). The
+text is taken from the **Gazette of India** BNS 2023 (public domain under
+s.52(1)(q) Copyright Act, 1957). Still verify against `indiacode.nic.in` before
+citing. Not yet included: full IPC section text, and the BNSS First Schedule
+classification (cognizable / bailable / triable-by / compoundable) — planned.
 
 ### Files
 | file | purpose |
