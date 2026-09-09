@@ -70,6 +70,9 @@ few are genuinely not 1:1. **Verify every entry against:**
 
 Not legal advice. IPC still governs offences committed before 1 July 2024.
 
+## Roadmap
+See [ROADMAP.md](ROADMAP.md) for the full phased plan and changelog.
+
 ## Next modules (planned)
 - BNSS ⇄ CrPC and BSA ⇄ Evidence Act converters
 - s.138 NI Act practice module (notice timeline, drafts, checklist)
