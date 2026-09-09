@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8a1f2b">
+<meta name="description" content="Leo-Law — an offline reference notebook for Indian lawyers. Module 1: BNS ⇄ IPC quick converter (Bharatiya Nyaya Sanhita 2023 vs Indian Penal Code 1860).">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Leo-Law</title>
+<style>
+:root{
+  --bg:#f5f2ec; --bg-2:#fffdf8; --panel:#ffffff; --ink:#221f1c; --ink-soft:#5f594f;
+  --line:#e3ddcf; --accent:#8a1f2b; --accent-ink:#fff; --accent-soft:#f3e2e2;
+  --chip:#efe9dd; --chip-ink:#5d5346;
+  --ok:#2f6b46; --ok-bg:#e5f0e8; --new:#2f5b8a; --new-bg:#e2ecf5; --warn:#8a5a1f; --warn-bg:#f4ebd9; --gone:#7a2e2e; --gone-bg:#f3e3e3;
+  --shadow:0 1px 2px rgba(40,30,20,.07),0 8px 22px rgba(40,30,20,.06);
+  --maxw:56rem;
+}
+[data-theme="sepia"]{
+  --bg:#ece1cd; --bg-2:#f5ecd9; --panel:#f8f1e0; --ink:#3f3428; --ink-soft:#6b5c46;
+  --line:#dbcaa9; --accent:#8a3320; --accent-soft:#ead8c8; --chip:#e6d9bd; --chip-ink:#67563a;
+  --ok:#3a6b3a; --ok-bg:#e3ead0; --new:#3a5a7a; --new-bg:#e2e8d8; --warn:#7a5320; --warn-bg:#ece0c4; --gone:#7a3320; --gone-bg:#ecdcc9;
+  --shadow:0 1px 3px rgba(90,70,40,.12),0 8px 20px rgba(90,70,40,.08);
+}
+[data-theme="dark"]{
+  --bg:#17181b; --bg-2:#1e2024; --panel:#23262b; --ink:#e7e4dd; --ink-soft:#a8a399;
+  --line:#333840; --accent:#d97b86; --accent-ink:#1a0d0f; --accent-soft:#33262a;
+  --chip:#2b2f36; --chip-ink:#b7b2a6;
+  --ok:#7fc79b; --ok-bg:#1f2e26; --new:#8db6e0; --new-bg:#1e2a38; --warn:#d8b06a; --warn-bg:#302a1c; --gone:#e09a9a; --gone-bg:#33201f;
+  --shadow:0 1px 3px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.4);
+}
+[data-theme="night"]{
+  --bg:#0a0c10; --bg-2:#0e1116; --panel:#12151b; --ink:#c9d0da; --ink-soft:#7d8593;
+  --line:#1e222c; --accent:#e68d97; --accent-ink:#12080a; --accent-soft:#241a1d;
+  --chip:#161c27; --chip-ink:#9aa2b0;
+  --ok:#6fc290; --ok-bg:#12241c; --new:#7fb0e0; --new-bg:#132132; --warn:#d8ad63; --warn-bg:#251f12; --gone:#e09595; --gone-bg:#291717;
+  --shadow:0 1px 2px rgba(0,0,0,.6),0 12px 30px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+a{color:var(--accent)}
+
+/* ---------- top bar ---------- */
+header{
+  position:sticky; top:0; z-index:20;
+  background:var(--bg-2); border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(0,0,0,.03);
+}
+.bar{
+  max-width:var(--maxw); margin:0 auto; padding:.7rem 1rem;
+  display:flex; align-items:center; gap:.7rem;
+}
+.logo{
+  width:2.2rem; height:2.2rem; flex:0 0 2.2rem; border-radius:.6rem;
+  background:var(--accent); color:var(--accent-ink); display:grid; place-items:center;
+  font-weight:800; font-size:1.3rem; font-family:Georgia,"Times New Roman",serif;
+}
+.title b{font-size:1.05rem; display:block; letter-spacing:.01em}
+.title small{color:var(--ink-soft); font-size:.74rem}
+.themes{margin-left:auto; display:flex; gap:.25rem}
+.themes button{
+  width:1.7rem; height:1.7rem; border-radius:.45rem; border:1px solid var(--line);
+  cursor:pointer; padding:0; font-size:.85rem; background:var(--panel); color:var(--ink-soft);
+}
+.themes button.on{border-color:var(--accent); color:var(--accent); font-weight:700}
+
+/* ---------- search zone ---------- */
+.search-wrap{max-width:var(--maxw); margin:0 auto; padding:.8rem 1rem 0}
+.search-box{
+  display:flex; align-items:center; gap:.5rem;
+  background:var(--panel); border:1.5px solid var(--line); border-radius:.7rem;
+  padding:.55rem .8rem; box-shadow:var(--shadow);
+}
+.search-box:focus-within{border-color:var(--accent)}
+.search-box svg{width:1.15rem; height:1.15rem; flex:0 0 1.15rem; stroke:var(--ink-soft); fill:none; stroke-width:2}
+.search-box input{
+  border:0; outline:0; background:none; color:var(--ink); font:inherit; width:100%;
+}
+.search-box .clr{
+  border:0; background:none; color:var(--ink-soft); cursor:pointer; font-size:1.1rem;
+  padding:0 .2rem; display:none;
+}
+.hint{max-width:var(--maxw); margin:.4rem auto 0; padding:0 1rem; color:var(--ink-soft); font-size:.78rem}
+
+/* ---------- filters ---------- */
+.filters{
+  max-width:var(--maxw); margin:.7rem auto 0; padding:0 1rem .2rem;
+  display:flex; gap:.4rem; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+}
+.filters::-webkit-scrollbar{display:none}
+.filters button{
+  flex:0 0 auto; border:1px solid var(--line); background:var(--panel); color:var(--chip-ink);
+  border-radius:99px; padding:.32rem .7rem; font-size:.8rem; cursor:pointer; white-space:nowrap;
+}
+.filters button.on{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:600}
+
+/* ---------- disclaimer ---------- */
+.disclaimer{
+  max-width:var(--maxw); margin:.9rem auto 0; padding:.7rem .9rem;
+  background:var(--warn-bg); border:1px solid var(--line); border-left:3px solid var(--warn);
+  border-radius:.5rem; color:var(--ink-soft); font-size:.8rem; line-height:1.5;
+}
+.disclaimer b{color:var(--warn)}
+
+/* ---------- list ---------- */
+main{max-width:var(--maxw); margin:0 auto; padding:1rem 1rem 5rem}
+.count{color:var(--ink-soft); font-size:.8rem; margin:.9rem .2rem .5rem}
+.group-h{
+  font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);
+  font-weight:700; margin:1.6rem .2rem .6rem; padding-bottom:.35rem; border-bottom:1px solid var(--line);
+}
+.group-h:first-of-type{margin-top:.3rem}
+
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:.7rem;
+  padding:.85rem .95rem; margin-bottom:.6rem; box-shadow:var(--shadow);
+}
+.card .rail{display:flex; flex-wrap:wrap; gap:.4rem; align-items:center; margin-bottom:.45rem}
+.sec-tag{
+  font-family:Georgia,"Times New Roman",serif; font-weight:700; font-size:.85rem;
+  padding:.2rem .5rem; border-radius:.4rem; border:1px solid var(--line); white-space:nowrap;
+}
+.sec-tag.ipc{background:var(--chip); color:var(--chip-ink)}
+.sec-tag.bns{background:var(--accent-soft); color:var(--accent)}
+.arrow{color:var(--ink-soft); font-size:.9rem}
+.pill{
+  margin-left:auto; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+  padding:.18rem .45rem; border-radius:.35rem;
+}
+.pill.mapped{background:var(--ok-bg); color:var(--ok)}
+.pill.renum{background:var(--new-bg); color:var(--new)}
+.pill.changed{background:var(--warn-bg); color:var(--warn)}
+.pill.new{background:var(--new-bg); color:var(--new)}
+.pill.gone{background:var(--gone-bg); color:var(--gone)}
+.card h3{margin:0 0 .25rem; font-size:.98rem; line-height:1.35}
+.card p{margin:.15rem 0 0; font-size:.87rem; color:var(--ink-soft); line-height:1.5}
+.card .note{
+  margin-top:.5rem; padding-top:.5rem; border-top:1px dashed var(--line);
+  font-size:.82rem; color:var(--ink-soft);
+}
+.card .note b{color:var(--ink)}
+.cat-line{margin-top:.5rem; font-size:.72rem; color:var(--ink-soft)}
+mark{background:var(--accent-soft); color:var(--accent); border-radius:.2rem; padding:0 .1rem}
+
+.empty{text-align:center; color:var(--ink-soft); padding:3rem 1rem; font-size:.9rem}
+
+footer{
+  max-width:var(--maxw); margin:0 auto; padding:1.5rem 1rem 4rem; color:var(--ink-soft);
+  font-size:.78rem; line-height:1.6; border-top:1px solid var(--line);
+}
+footer h4{color:var(--ink); font-size:.85rem; margin:0 0 .4rem}
+footer ul{margin:.3rem 0 .8rem; padding-left:1.1rem}
+
+@media(max-width:560px){
+  .title small{display:none}
+  .bar{gap:.5rem}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo">§</div>
+    <div class="title"><b>Leo-Law</b><small>BNS&nbsp;⇄&nbsp;IPC quick converter</small></div>
+    <div class="themes" id="themes">
+      <button data-t="day" title="Day">☀</button>
+      <button data-t="sepia" title="Sepia">◐</button>
+      <button data-t="dark" title="Dark">☾</button>
+      <button data-t="night" title="Night">★</button>
+    </div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Type a section no. (302, 420, §64) or keyword (murder, cheating, acid…)">
+    <button class="clr" id="clr" aria-label="Clear">×</button>
+  </div>
+</div>
+<div class="hint">Searches both directions — an <b>IPC</b> number finds its <b>BNS</b> section and vice-versa. Also matches the offence name.</div>
+
+<div class="filters" id="filters"></div>
+
+<div class="disclaimer">
+  <b>Study aid — verify before relying on it.</b> Not legal advice. The BNS renumbers most offences into sub-sections and a few are not 1:1. The mappings here were spot-checked against <b>devgan.in</b> bare-act text, but always confirm against the official <b>Gazette</b> / <b>India Code</b> and the MHA IPC–BNS chart before citing in court or pleadings. BNS/BNSS/BSA came into force on <b>1 July 2024</b>; the IPC continues to apply to offences committed before that date.
+</div>
+
+<main>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+  <div class="empty" id="empty" style="display:none">No section matches that. Try a bare number, or a shorter keyword.</div>
+</main>
+
+<footer>
+  <h4>About this module</h4>
+  <p>Module 1 of Leo-Law. Covers the ~120 most-used penal provisions mapped between the <b>Indian Penal Code, 1860</b> and the <b>Bharatiya Nyaya Sanhita, 2023</b>, plus offences that are <b>new</b> in the BNS and those <b>omitted / decriminalised</b>. Works fully offline once opened; install it to your home screen.</p>
+  <h4>Status tags</h4>
+  <ul>
+    <li><b>Mapped</b> — substantially the same offence, renumbered.</li>
+    <li><b>Renumbered</b> — same offence, now folded into a sub-section of a combined provision.</li>
+    <li><b>Changed</b> — the provision was reworked; wording, scope or punishment differs — read the note.</li>
+    <li><b>New in BNS</b> — no IPC equivalent.</li>
+    <li><b>Omitted</b> — not re-enacted in the BNS.</li>
+  </ul>
+  <h4>Primary sources to verify against</h4>
+  <ul>
+    <li>India Code — Bharatiya Nyaya Sanhita, 2023 &amp; IPC, 1860 (indiacode.nic.in)</li>
+    <li>MHA / PRS Legislative Research IPC↔BNS comparison charts</li>
+    <li>Devgan.in — cross-referenced bare acts with old↔new mapping</li>
+  </ul>
+  <p id="rev"></p>
+</footer>
+
+<script>
+/* ---------------- theme ---------------- */
+(function(){
+  var root=document.documentElement, saved=null;
+  try{saved=localStorage.getItem('leolaw-theme')}catch(e){}
+  if(saved) root.setAttribute('data-theme',saved);
+  var box=document.getElementById('themes');
+  function paint(){var t=root.getAttribute('data-theme');
+    [].forEach.call(box.children,function(b){b.classList.toggle('on',b.dataset.t===t)});}
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    root.setAttribute('data-theme',b.dataset.t);
+    try{localStorage.setItem('leolaw-theme',b.dataset.t)}catch(e){}
+    paint();
+  });
+  paint();
+})();
+
+/* ---------------- data ----------------
+   f = family/category, s = status
+   ipc / bns : display strings (may be "—")
+   t = offence title, g = gist, n = note (optional)
+*/
+var CATS=[
+  ["all","All"],
+  ["gen","General · abetment · conspiracy"],
+  ["state","State · public tranquillity"],
+  ["pubserv","Public servants"],
+  ["homicide","Homicide"],
+  ["hurt","Hurt · force · endangerment"],
+  ["liberty","Restraint · kidnapping · trafficking"],
+  ["sexual","Sexual offences"],
+  ["women","Women · marriage · cruelty"],
+  ["property","Theft · robbery · dacoity"],
+  ["cbt","Breach of trust · cheating"],
+  ["mischief","Mischief · trespass"],
+  ["docs","Forgery · currency"],
+  ["reputation","Defamation · intimidation"]
+];
+
+var DATA=[
+/* ---- general ---- */
+{f:"gen",s:"renum",ipc:"34",bns:"3(5)",t:"Common intention",g:"Act done by several persons in furtherance of common intention — each liable as if done alone."},
+{f:"gen",s:"renum",ipc:"107–108",bns:"45–46",t:"Abetment — definition",g:"Abetment of a thing; who is an abettor (instigation, conspiracy, intentional aid)."},
+{f:"gen",s:"mapped",ipc:"109",bns:"49",t:"Abetment — act committed in consequence",g:"Punishment for abetment where the act abetted is committed and no express provision applies."},
+{f:"gen",s:"mapped",ipc:"116",bns:"51",t:"Abetment of an offence punishable with imprisonment",g:"Where the offence is not committed — up to a quarter of the term."},
+{f:"gen",s:"mapped",ipc:"120",bns:"55",t:"Concealing a design to commit an offence",g:"Voluntary concealment of a plan to commit an offence punishable with imprisonment."},
+{f:"gen",s:"renum",ipc:"120A",bns:"61(1)",t:"Criminal conspiracy — definition",g:"Agreement of two or more persons to do, or cause to be done, an illegal act."},
+{f:"gen",s:"renum",ipc:"120B",bns:"61(2)",t:"Criminal conspiracy — punishment",g:"Same as for the underlying offence where it is grave; otherwise up to 6 months."},
+{f:"gen",s:"new",ipc:"—",bns:"48",t:"Abetment outside India for an offence in India",g:"New express provision: a person abetting from outside India an offence committed in India is triable here."},
+{f:"gen",s:"mapped",ipc:"201",bns:"238",t:"Causing disappearance of evidence",g:"Causing evidence of an offence to disappear, or giving false information to screen an offender."},
+{f:"gen",s:"mapped",ipc:"212",bns:"249",t:"Harbouring an offender",g:"Harbouring or concealing a person known to have committed an offence, to screen him from punishment."},
+{f:"gen",s:"mapped",ipc:"216",bns:"251",t:"Harbouring an offender who has escaped from custody",g:"Or whose apprehension has been ordered."},
+
+/* ---- state / public tranquillity ---- */
+{f:"state",s:"mapped",ipc:"121",bns:"147",t:"Waging, or attempting to wage, war against the Government of India",g:"Punishable with death or imprisonment for life."},
+{f:"state",s:"mapped",ipc:"121A",bns:"148",t:"Conspiracy to wage war",g:"Conspiring within or outside India to commit an offence under BNS 147."},
+{f:"state",s:"mapped",ipc:"122",bns:"149",t:"Collecting arms etc. with intent to wage war",g:"Collecting men, arms or ammunition or otherwise preparing to wage war."},
+{f:"state",s:"mapped",ipc:"124",bns:"151",t:"Assaulting President, Governor etc. to compel or restrain the exercise of lawful power",g:""},
+{f:"state",s:"changed",ipc:"124A",bns:"152",t:"Sedition → Act endangering sovereignty, unity and integrity of India",g:"Sedition as such is dropped. BNS 152 penalises exciting secession, armed rebellion, subversive activities or encouraging separatist feelings — by words, signs, electronic communication or financial means.",n:"<b>Not a 1:1 rename.</b> Ingredients, scope and the ‘disaffection’ language have changed; earlier sedition precedent must be used with care."},
+{f:"state",s:"mapped",ipc:"153A",bns:"196",t:"Promoting enmity between groups on grounds of religion, race, place of birth, language etc.",g:"And doing acts prejudicial to maintenance of harmony."},
+{f:"state",s:"mapped",ipc:"153B",bns:"197",t:"Imputations and assertions prejudicial to national integration",g:""},
+{f:"state",s:"renum",ipc:"141 / 143",bns:"189(1) / 189(2)",t:"Unlawful assembly — definition and punishment",g:"Assembly of five or more with a common object listed in the section; being a member is punishable up to 6 months."},
+{f:"state",s:"renum",ipc:"144",bns:"189(4)",t:"Joining an unlawful assembly armed with a deadly weapon",g:""},
+{f:"state",s:"renum",ipc:"145",bns:"189(5)",t:"Joining or continuing in an unlawful assembly knowing it has been commanded to disperse",g:""},
+{f:"state",s:"renum",ipc:"146 / 147",bns:"191(1) / 191(2)",t:"Rioting — definition and punishment",g:"Force or violence by an unlawful assembly, or any member in prosecution of the common object; up to 2 years."},
+{f:"state",s:"renum",ipc:"148",bns:"191(3)",t:"Rioting, armed with a deadly weapon",g:"Up to 3 years."},
+{f:"state",s:"renum",ipc:"149",bns:"190",t:"Every member of an unlawful assembly guilty of an offence committed in prosecution of the common object",g:"Vicarious/constructive liability."},
+{f:"state",s:"mapped",ipc:"160",bns:"194(2)",t:"Committing affray",g:"Two or more persons fighting in a public place and disturbing the public peace."},
+{f:"state",s:"mapped",ipc:"295A",bns:"299",t:"Deliberate and malicious acts intended to outrage religious feelings",g:"By words, writing, signs or visible representation, insulting religion or religious beliefs."},
+{f:"state",s:"mapped",ipc:"505",bns:"353",t:"Statements conducing to public mischief",g:"Rumours or alarming news likely to cause fear, or to incite an offence against the State or a class."},
+
+/* ---- public servants ---- */
+{f:"pubserv",s:"mapped",ipc:"182",bns:"217",t:"False information to a public servant, with intent to cause him to use his lawful power to injure another",g:""},
+{f:"pubserv",s:"mapped",ipc:"186",bns:"221",t:"Obstructing a public servant in the discharge of public functions",g:""},
+{f:"pubserv",s:"mapped",ipc:"188",bns:"223",t:"Disobedience to an order duly promulgated by a public servant",g:"Where the disobedience causes, or tends to cause, obstruction, annoyance or danger."},
+{f:"pubserv",s:"mapped",ipc:"189",bns:"224",t:"Threat of injury to a public servant",g:"To induce him to do or forbear any official act."},
+{f:"pubserv",s:"mapped",ipc:"211",bns:"248",t:"False charge of an offence made with intent to injure",g:"Instituting or falsely charging a person with an offence, knowing there is no just or lawful ground."},
+{f:"pubserv",s:"renum",ipc:"332",bns:"121(1)",t:"Voluntarily causing hurt to deter a public servant from his duty",g:""},
+{f:"pubserv",s:"renum",ipc:"333",bns:"121(2)",t:"Voluntarily causing grievous hurt to deter a public servant from his duty",g:""},
+{f:"pubserv",s:"mapped",ipc:"353",bns:"132",t:"Assault or criminal force to deter a public servant from discharge of his duty",g:""},
+
+/* ---- homicide ---- */
+{f:"homicide",s:"renum",ipc:"299",bns:"100",t:"Culpable homicide — definition",g:"Causing death by an act with intent to cause death / such bodily injury as is likely to cause death / with knowledge it is likely to cause death."},
+{f:"homicide",s:"renum",ipc:"300",bns:"101",t:"Murder — definition",g:"Culpable homicide is murder subject to the four clauses and the five exceptions."},
+{f:"homicide",s:"renum",ipc:"302",bns:"103(1)",t:"Punishment for murder",g:"Death, or imprisonment for life, and fine."},
+{f:"homicide",s:"new",ipc:"—",bns:"103(2)",t:"Murder by a group on the ground of race, caste, community, sex, place of birth, language, personal belief etc. (mob lynching)",g:"Group of five or more acting together — each punishable with death or life imprisonment and fine.",n:"<b>New</b> — no IPC section; earlier such cases were prosecuted under 302 read with 149/34."},
+{f:"homicide",s:"mapped",ipc:"303",bns:"104",t:"Punishment for murder by a life-convict",g:"Death, or imprisonment for life which shall mean the remainder of that person's natural life.",n:"IPC 303's mandatory death sentence was struck down in <i>Mithu</i> (1983); BNS 104 re-enacts it with a graded punishment."},
+{f:"homicide",s:"renum",ipc:"304",bns:"105",t:"Punishment for culpable homicide not amounting to murder",g:"Life, or up to 10 years, + fine (with intent); or up to 10 years / fine / both (with knowledge only)."},
+{f:"homicide",s:"renum",ipc:"304A",bns:"106(1)",t:"Causing death by negligence",g:"Rash or negligent act not amounting to culpable homicide — up to 5 years + fine. Registered medical practitioner by rash/negligent medical act — up to 2 years + fine."},
+{f:"homicide",s:"new",ipc:"—",bns:"106(2)",t:"Hit-and-run — causing death by rash/negligent driving and escaping without reporting",g:"Fleeing without reporting the incident to a police officer or Magistrate soon after — up to 10 years + fine.",n:"<b>New aggravated form.</b> Commencement of 106(2) was deferred pending consultation."},
+{f:"homicide",s:"renum",ipc:"304B",bns:"80",t:"Dowry death",g:"Death of a woman by burns/bodily injury or otherwise than under normal circumstances within 7 years of marriage, with cruelty or harassment for dowry — not less than 7 years, up to life."},
+{f:"homicide",s:"mapped",ipc:"305",bns:"107",t:"Abetment of suicide of a child or insane person",g:"Death or life imprisonment or up to 10 years + fine."},
+{f:"homicide",s:"mapped",ipc:"306",bns:"108",t:"Abetment of suicide",g:"Up to 10 years + fine."},
+{f:"homicide",s:"mapped",ipc:"307",bns:"109",t:"Attempt to murder",g:"Up to 10 years + fine; life if hurt is caused; life or death for an attempt by a life-convict causing hurt."},
+{f:"homicide",s:"mapped",ipc:"308",bns:"110",t:"Attempt to commit culpable homicide",g:"Up to 3 years / fine / both; up to 7 years if hurt is caused."},
+
+/* ---- hurt / force / endangerment ---- */
+{f:"hurt",s:"renum",ipc:"319",bns:"114",t:"Hurt — definition",g:"Causing bodily pain, disease or infirmity to any person."},
+{f:"hurt",s:"renum",ipc:"320",bns:"116",t:"Grievous hurt — definition",g:"The eight kinds — emasculation, loss of sight/hearing, fracture, disfiguration of head/face, etc."},
+{f:"hurt",s:"renum",ipc:"321 / 323",bns:"115(1) / 115(2)",t:"Voluntarily causing hurt — definition and punishment",g:"Up to 1 year / fine up to ₹10,000 / both."},
+{f:"hurt",s:"renum",ipc:"322 / 325",bns:"117(1) / 117(2)",t:"Voluntarily causing grievous hurt — definition and punishment",g:"Up to 7 years + fine."},
+{f:"hurt",s:"new",ipc:"—",bns:"117(3)–(4)",t:"Grievous hurt causing permanent disability or persistent vegetative state",g:"By an act — not less than 10 years, up to life; if by a group of five or more on a ground such as caste, sex, language etc. — not less than 7 years, extendable to life.",n:"<b>New</b> graded provisions."},
+{f:"hurt",s:"renum",ipc:"324",bns:"118(1)",t:"Voluntarily causing hurt by dangerous weapons or means",g:"Instrument for shooting/stabbing/cutting, fire, poison, corrosive/explosive substance, animal, etc."},
+{f:"hurt",s:"renum",ipc:"326",bns:"118(2)",t:"Voluntarily causing grievous hurt by dangerous weapons or means",g:"Life, or up to 10 years + fine."},
+{f:"hurt",s:"renum",ipc:"326A",bns:"124(1)",t:"Voluntarily causing grievous hurt by use of acid",g:"Not less than 10 years, up to life, + fine to meet medical expenses payable to the victim."},
+{f:"hurt",s:"renum",ipc:"326B",bns:"124(2)",t:"Voluntarily throwing or attempting to throw acid",g:"Not less than 5 years, up to 7 years, + fine."},
+{f:"hurt",s:"renum",ipc:"336",bns:"125",t:"Act endangering life or personal safety of others",g:"Rash or negligent act; enhanced punishment where hurt (125a) or grievous hurt (125b) results."},
+{f:"hurt",s:"renum",ipc:"337 / 338",bns:"125(a) / 125(b)",t:"Causing hurt / grievous hurt by an act endangering life or personal safety",g:"Up to 6 months (hurt); up to 3 years (grievous hurt), + fine."},
+{f:"hurt",s:"mapped",ipc:"279",bns:"281",t:"Rash driving or riding on a public way",g:"Up to 6 months / fine up to ₹1,000 / both."},
+{f:"hurt",s:"renum",ipc:"341",bns:"126(2)",t:"Wrongful restraint — punishment",g:"Voluntarily obstructing a person so as to prevent him proceeding in a direction he has a right to proceed."},
+{f:"hurt",s:"renum",ipc:"342",bns:"127(2)",t:"Wrongful confinement — punishment",g:"Wrongfully restraining a person so as to prevent him from proceeding beyond certain circumscribing limits."},
+{f:"hurt",s:"renum",ipc:"349–352",bns:"128–131",t:"Force, criminal force and assault — definitions and basic punishment",g:"Assault or criminal force otherwise than on grave provocation — up to 3 months / fine up to ₹1,000 / both."},
+
+/* ---- women: modesty & harassment (kept in hurt list too) ---- */
+{f:"women",s:"renum",ipc:"354",bns:"74",t:"Assault or criminal force to a woman with intent to outrage her modesty",g:"Not less than 1 year, up to 5 years, + fine."},
+{f:"women",s:"renum",ipc:"354A",bns:"75",t:"Sexual harassment",g:"Physical contact and advances, demand for sexual favours, showing pornography, sexually coloured remarks."},
+{f:"women",s:"renum",ipc:"354B",bns:"76",t:"Assault or use of criminal force to a woman with intent to disrobe",g:"Not less than 3 years, up to 7 years, + fine."},
+{f:"women",s:"renum",ipc:"354C",bns:"77",t:"Voyeurism",g:"Watching or capturing the image of a woman engaging in a private act."},
+{f:"women",s:"renum",ipc:"354D",bns:"78",t:"Stalking",g:"Following and contacting, or monitoring electronic communication, despite disinterest; up to 3 years (first)."},
+{f:"women",s:"renum",ipc:"509",bns:"79",t:"Word, gesture or act intended to insult the modesty of a woman",g:"Up to 3 years + fine."},
+
+/* ---- liberty: kidnapping, abduction, trafficking ---- */
+{f:"liberty",s:"renum",ipc:"359 / 363",bns:"137(1) / 137(2)",t:"Kidnapping — kinds and punishment",g:"From India / from lawful guardianship; up to 7 years + fine."},
+{f:"liberty",s:"renum",ipc:"363A",bns:"139",t:"Kidnapping or maiming a child for purposes of begging",g:""},
+{f:"liberty",s:"renum",ipc:"364",bns:"140(1)",t:"Kidnapping or abducting in order to murder",g:"Death / life / rigorous imprisonment up to 10 years."},
+{f:"liberty",s:"renum",ipc:"364A",bns:"140(2)",t:"Kidnapping for ransom etc.",g:"Death, or imprisonment for life, + fine."},
+{f:"liberty",s:"renum",ipc:"366",bns:"87",t:"Kidnapping, abducting or inducing a woman to compel her marriage etc.",g:"Or forcing/seducing her to illicit intercourse."},
+{f:"liberty",s:"renum",ipc:"366A",bns:"96",t:"Procuration of a minor girl",g:"Inducing a girl under 18 to go with intent that she may be forced or seduced to illicit intercourse."},
+{f:"liberty",s:"renum",ipc:"370",bns:"143",t:"Trafficking of persons",g:"Recruitment, transport, harbouring, transfer or receipt by threats, force, fraud, inducement etc. for exploitation."},
+{f:"liberty",s:"renum",ipc:"370A",bns:"144",t:"Exploitation of a trafficked person",g:"Engaging a trafficked person, or a minor, sexually or for labour, knowing the trafficking."},
+{f:"liberty",s:"renum",ipc:"372 / 373",bns:"145 / 146",t:"Selling / buying a minor for purposes of prostitution",g:""},
+{f:"liberty",s:"new",ipc:"—",bns:"95",t:"Hiring, employing or engaging a child to commit an offence",g:"New standalone offence — punishment not less than that provided for the offence, plus liability for offences committed by the child at the offender's instance."},
+
+/* ---- sexual offences ---- */
+{f:"sexual",s:"renum",ipc:"375 / 376(1)",bns:"63 / 64(1)",t:"Rape — definition and punishment",g:"Not less than 10 years, extendable to imprisonment for life, + fine."},
+{f:"sexual",s:"renum",ipc:"376(2)",bns:"64(2)",t:"Aggravated rape (by police / public servant / member of armed forces / on a pregnant woman / hospital staff etc.)",g:"Rigorous imprisonment not less than 10 years, extendable to life (remainder of natural life), + fine."},
+{f:"sexual",s:"renum",ipc:"376(3)",bns:"65(1)",t:"Rape on a woman under sixteen years of age",g:"Rigorous imprisonment not less than 20 years, extendable to imprisonment for life (natural life), + fine."},
+{f:"sexual",s:"renum",ipc:"376AB",bns:"65(2)",t:"Rape on a woman under twelve years of age",g:"Rigorous imprisonment not less than 20 years, extendable to life (natural life), or death, + fine."},
+{f:"sexual",s:"renum",ipc:"376A",bns:"66",t:"Causing death, or resulting in a persistent vegetative state, of the victim",g:"Rigorous imprisonment not less than 20 years, extendable to life (natural life), or death."},
+{f:"sexual",s:"renum",ipc:"376B",bns:"67",t:"Sexual intercourse by a husband upon his wife during separation",g:"Without her consent — 2 to 7 years + fine."},
+{f:"sexual",s:"renum",ipc:"376C",bns:"68",t:"Sexual intercourse by a person in authority",g:"Public servant / jail or hospital staff / fiduciary position — inducing or seducing a woman in his custody or charge."},
+{f:"sexual",s:"renum",ipc:"376D",bns:"70(1)",t:"Gang rape",g:"Rigorous imprisonment not less than 20 years, extendable to life (natural life), + fine."},
+{f:"sexual",s:"renum",ipc:"376DA / 376DB",bns:"70(2)",t:"Gang rape on a woman under eighteen years of age",g:"Imprisonment for life (remainder of natural life), + fine, or death."},
+{f:"sexual",s:"mapped",ipc:"376E",bns:"71",t:"Punishment for repeat offenders",g:"Previously convicted under BNS 64/65/66/70 — imprisonment for life (natural life), or death."},
+{f:"sexual",s:"new",ipc:"—",bns:"69",t:"Sexual intercourse by employing deceitful means",g:"Intercourse not amounting to rape, by a deceitful means (incl. a false promise to marry with no intention of fulfilling it) or by a false promise of employment/promotion or marrying after suppressing identity — up to 10 years + fine.",n:"<b>New offence.</b> No IPC counterpart; earlier such facts were charged as rape on a misconception of fact under 375/90."},
+
+/* ---- women: marriage & cruelty ---- */
+{f:"women",s:"renum",ipc:"493",bns:"81",t:"Cohabitation caused by a man deceitfully inducing a belief of lawful marriage",g:"Up to 10 years + fine."},
+{f:"women",s:"renum",ipc:"494",bns:"82(1)",t:"Marrying again during the lifetime of a spouse (bigamy)",g:"Up to 7 years + fine."},
+{f:"women",s:"renum",ipc:"495",bns:"82(2)",t:"Bigamy with concealment of the former marriage from the person married",g:"Up to 10 years + fine."},
+{f:"women",s:"mapped",ipc:"496",bns:"83",t:"Marriage ceremony fraudulently gone through without a lawful marriage",g:"Up to 7 years + fine."},
+{f:"women",s:"mapped",ipc:"498",bns:"84",t:"Enticing or taking away or detaining, with criminal intent, a married woman",g:"Up to 2 years / fine / both."},
+{f:"women",s:"renum",ipc:"498A",bns:"85",t:"Husband or a relative of a husband subjecting a woman to cruelty",g:"Up to 3 years + fine. ‘Cruelty’ is defined in BNS 86 (conduct driving to suicide/grave injury; harassment for unlawful demand of property)."},
+
+/* ---- property: theft, extortion, robbery, dacoity ---- */
+{f:"property",s:"renum",ipc:"378 / 379",bns:"303(1) / 303(2)",t:"Theft — definition and punishment",g:"Up to 3 years / fine / both. On a second conviction — rigorous imprisonment 1 to 5 years + fine (or community service for a first petty theft returned)."},
+{f:"property",s:"new",ipc:"—",bns:"304",t:"Snatching",g:"Theft is ‘snatching’ if the offender suddenly or quickly or forcibly seizes, secures or grabs movable property from a person or their possession — up to 3 years + fine.",n:"<b>New</b> — carved out of theft as a distinct offence."},
+{f:"property",s:"renum",ipc:"380",bns:"305",t:"Theft in a dwelling house, place of worship, or means of transport",g:"Up to 7 years + fine."},
+{f:"property",s:"renum",ipc:"381",bns:"306",t:"Theft by a clerk or servant of property in the possession of the master",g:"Up to 7 years + fine."},
+{f:"property",s:"renum",ipc:"382",bns:"307",t:"Theft after preparation made for causing death, hurt or restraint in order to commit it",g:"Rigorous imprisonment up to 10 years + fine."},
+{f:"property",s:"renum",ipc:"383 / 384",bns:"308(1) / 308(2)",t:"Extortion — definition and punishment",g:"Putting a person in fear of injury to dishonestly induce delivery of property; up to 7 years / fine / both."},
+{f:"property",s:"renum",ipc:"390 / 392",bns:"309(1) / 309(4)",t:"Robbery — definition and punishment",g:"Rigorous imprisonment up to 10 years + fine; up to 14 years if committed on a highway between sunset and sunrise."},
+{f:"property",s:"renum",ipc:"394",bns:"309(6)",t:"Voluntarily causing hurt in committing or attempting robbery",g:"Life, or rigorous imprisonment up to 10 years + fine."},
+{f:"property",s:"renum",ipc:"391 / 395",bns:"310(1) / 310(2)",t:"Dacoity — definition and punishment",g:"Robbery by five or more persons conjointly; life, or rigorous imprisonment up to 10 years + fine."},
+{f:"property",s:"renum",ipc:"396",bns:"310(3)",t:"Dacoity with murder",g:"Death, or imprisonment for life, or rigorous imprisonment up to 10 years + fine."},
+{f:"property",s:"renum",ipc:"397",bns:"311",t:"Robbery or dacoity with an attempt to cause death or grievous hurt",g:"Minimum imprisonment of 7 years."},
+{f:"property",s:"renum",ipc:"399 / 402",bns:"310(4) / 310(5)",t:"Making preparation, or assembling, to commit dacoity",g:"Rigorous imprisonment up to 10 years + fine / up to 7 years + fine."},
+{f:"property",s:"mapped",ipc:"403",bns:"314",t:"Dishonest misappropriation of property",g:"Dishonestly misappropriating or converting to own use movable property; up to 2 years / fine / both."},
+
+/* ---- breach of trust & cheating ---- */
+{f:"cbt",s:"renum",ipc:"405 / 406",bns:"316(1) / 316(2)",t:"Criminal breach of trust — definition and punishment",g:"Dishonest misappropriation of property entrusted; up to 5 years / fine / both."},
+{f:"cbt",s:"renum",ipc:"407",bns:"316(3)",t:"Criminal breach of trust by a carrier, wharfinger or warehouse-keeper",g:"Up to 7 years + fine."},
+{f:"cbt",s:"renum",ipc:"408",bns:"316(4)",t:"Criminal breach of trust by a clerk or servant",g:"Up to 7 years + fine."},
+{f:"cbt",s:"renum",ipc:"409",bns:"316(5)",t:"Criminal breach of trust by a public servant, banker, merchant or agent",g:"Life, or up to 10 years, + fine."},
+{f:"cbt",s:"renum",ipc:"415 / 417",bns:"318(1) / 318(2)",t:"Cheating — definition and punishment",g:"Fraudulently or dishonestly inducing a person to deliver property or to do/omit an act; up to 3 years / fine / both."},
+{f:"cbt",s:"renum",ipc:"418",bns:"318(3)",t:"Cheating with knowledge that wrongful loss may ensue to a person whose interest the offender is bound to protect",g:"Up to 3 years / fine / both."},
+{f:"cbt",s:"renum",ipc:"420",bns:"318(4)",t:"Cheating and dishonestly inducing delivery of property",g:"Or the making/alteration/destruction of a valuable security; up to 7 years + fine."},
+{f:"cbt",s:"renum",ipc:"419",bns:"319(2)",t:"Cheating by personation",g:"Up to 5 years / fine / both."},
+{f:"cbt",s:"renum",ipc:"411 / 413",bns:"317(2) / 317(4)",t:"Dishonestly receiving stolen property / habitually dealing in stolen property",g:"Up to 3 years / fine / both; habitual — life or up to 10 years + fine."},
+
+/* ---- mischief & trespass ---- */
+{f:"mischief",s:"renum",ipc:"425 / 426",bns:"324(1) / 324(2)",t:"Mischief — definition and punishment",g:"Causing wrongful loss or damage by destroying or diminishing the value/utility of property; up to 6 months / fine / both."},
+{f:"mischief",s:"renum",ipc:"427",bns:"324(3)",t:"Mischief causing loss or damage to property",g:"Up to 1 year / fine / both. BNS 324 then grades it further: 324(4) — loss of ₹20,000 to ₹1 lakh (up to 2 years); 324(5) — loss of ₹1 lakh or more (up to 5 years); 324(6) — mischief after preparation to cause death, hurt or restraint."},
+{f:"mischief",s:"renum",ipc:"435",bns:"326(f)",t:"Mischief by fire or explosive substance with intent to cause damage to property",g:"Up to 7 years + fine. (BNS 326 clause (f).)"},
+{f:"mischief",s:"renum",ipc:"436",bns:"326(g)",t:"Mischief by fire or explosive substance with intent to destroy a house, place of worship or place of human dwelling",g:"Life, or up to 10 years, + fine. (BNS 326 clause (g).)"},
+{f:"mischief",s:"renum",ipc:"441 / 447",bns:"329(1) / 329(3)",t:"Criminal trespass — definition and punishment",g:"Entering into or remaining on property with intent to commit an offence or to intimidate/insult/annoy; up to 3 months / fine up to ₹5,000 / both."},
+{f:"mischief",s:"renum",ipc:"442 / 448",bns:"329(2) / 329(4)",t:"House-trespass — definition and punishment",g:"Criminal trespass into a building/tent/vessel used as a human dwelling or for worship/property; up to 1 year / fine up to ₹5,000 / both."},
+{f:"mischief",s:"renum",ipc:"454",bns:"331(2)–(3)",t:"Lurking house-trespass or house-breaking in order to commit an offence",g:"Up to 3 years + fine (up to 10 years if the offence intended is theft)."},
+{f:"mischief",s:"renum",ipc:"457",bns:"331(4)–(5)",t:"Lurking house-trespass or house-breaking by night in order to commit an offence",g:"Up to 5 years + fine (up to 14 years if the offence intended is theft)."},
+{f:"mischief",s:"renum",ipc:"452",bns:"333",t:"House-trespass after preparation for hurt, assault or wrongful restraint",g:"Up to 7 years + fine."},
+
+/* ---- forgery & currency ---- */
+{f:"docs",s:"renum",ipc:"463 / 465",bns:"336(1) / 336(2)",t:"Forgery — definition and punishment",g:"Making a false document or false electronic record with intent to cause damage/injury, support a claim, or commit fraud; up to 2 years / fine / both."},
+{f:"docs",s:"renum",ipc:"468",bns:"336(3)",t:"Forgery for the purpose of cheating",g:"Up to 7 years + fine."},
+{f:"docs",s:"renum",ipc:"469",bns:"336(4)",t:"Forgery for the purpose of harming reputation",g:"Up to 3 years + fine."},
+{f:"docs",s:"renum",ipc:"471",bns:"340(2)",t:"Using as genuine a forged document or electronic record",g:"Punishable as for forgery of that document."},
+{f:"docs",s:"renum",ipc:"489A",bns:"178",t:"Counterfeiting currency notes or bank notes",g:"Life, or up to 10 years, + fine."},
+{f:"docs",s:"renum",ipc:"489B",bns:"179",t:"Using as genuine forged or counterfeit currency notes or bank notes",g:"Life, or up to 10 years, + fine."},
+{f:"docs",s:"renum",ipc:"489C",bns:"180",t:"Possession of forged or counterfeit currency notes or bank notes",g:"Up to 7 years / fine / both."},
+{f:"docs",s:"renum",ipc:"489D",bns:"181",t:"Making or possessing instruments or materials for forging or counterfeiting currency",g:"Life, or up to 10 years, + fine."},
+{f:"docs",s:"renum",ipc:"489E",bns:"182",t:"Making or using documents resembling currency notes or bank notes",g:"Fine up to ₹300."},
+
+/* ---- defamation & intimidation ---- */
+{f:"reputation",s:"renum",ipc:"499 / 500",bns:"356(1) / 356(2)",t:"Defamation — definition and punishment",g:"Up to 2 years / fine / both, or community service."},
+{f:"reputation",s:"renum",ipc:"503 / 506",bns:"351(1) / 351(2)–(3)",t:"Criminal intimidation — definition and punishment",g:"Threat of injury to person, reputation or property; up to 2 years / fine / both — up to 7 years where the threat is of death, grievous hurt, etc."},
+{f:"reputation",s:"renum",ipc:"507",bns:"351(4)",t:"Criminal intimidation by an anonymous communication",g:"Additional imprisonment up to 2 years."},
+{f:"reputation",s:"mapped",ipc:"504",bns:"352",t:"Intentional insult with intent to provoke a breach of the peace",g:"Up to 2 years / fine / both."},
+{f:"reputation",s:"mapped",ipc:"508",bns:"354",t:"Act caused by inducing a person to believe he will be rendered an object of divine displeasure",g:"Up to 1 year / fine / both."},
+{f:"reputation",s:"mapped",ipc:"510",bns:"355",t:"Misconduct in public by a drunken person",g:"Up to 24 hours / fine up to ₹1,000 / both, or community service."},
+
+/* ---- new offences (no IPC equivalent) ---- */
+{f:"gen",s:"new",ipc:"—",bns:"111",t:"Organised crime",g:"Continuing unlawful activity by a syndicate — kidnapping, extortion, contract killing, land grabbing, cyber-crime, trafficking, economic offences etc. Death or life imprisonment where it causes death; otherwise not less than 5 years."},
+{f:"gen",s:"new",ipc:"—",bns:"112",t:"Petty organised crime",g:"Theft, snatching, cheating, unauthorised betting/gambling, sale of tickets, etc. by a gang or group causing general feelings of insecurity — 1 to 7 years + fine."},
+{f:"state",s:"new",ipc:"—",bns:"113",t:"Terrorist act",g:"Acts threatening the unity, integrity, sovereignty, security or economic security of India, or striking terror in the people. Death or life imprisonment where it causes death; otherwise not less than 5 years.",n:"Overlaps with the UAPA; the officer not below SP rank decides whether to register under BNS 113 or the UAPA."},
+{f:"pubserv",s:"new",ipc:"—",bns:"226",t:"Attempt to commit suicide to compel or restrain a public servant from discharging his duty",g:"Simple imprisonment up to 1 year / fine / both, or community service.",n:"This is the narrow situation carried forward; general attempt to suicide (old IPC 309) is not an offence under the BNS."},
+
+/* ---- omitted / decriminalised ---- */
+{f:"sexual",s:"gone",ipc:"377",bns:"—",t:"Unnatural offences — omitted",g:"No corresponding provision in the BNS.",n:"Consensual same-sex conduct was already read down in <i>Navtej Singh Johar</i> (2018). The BNS contains no residuary clause for non-consensual carnal intercourse against men or for bestiality — a recognised gap."},
+{f:"women",s:"gone",ipc:"497",bns:"—",t:"Adultery — omitted",g:"Not re-enacted.",n:"Section 497 was struck down as unconstitutional in <i>Joseph Shine v. Union of India</i> (2018); the BNS does not revive it."},
+{f:"homicide",s:"gone",ipc:"309",bns:"—",t:"Attempt to commit suicide — omitted",g:"Not an offence under the BNS (except the narrow BNS 226).",n:"Consistent with s.115 of the Mental Healthcare Act, 2017, which presumes severe stress and bars prosecution."},
+{f:"state",s:"gone",ipc:"153AA",bns:"—",t:"Knowingly carrying arms in a mass drill or mass training with arms — omitted",g:"Not carried into the BNS."},
+{f:"gen",s:"gone",ipc:"124A",bns:"152",t:"Sedition — omitted as such (see BNS 152)",g:"The offence labelled ‘sedition’ is gone; BNS 152 covers acts endangering sovereignty, unity and integrity, with different ingredients.",n:"Listed here as well as under ‘State’ because practitioners search for it by the old name."},
+{f:"property",s:"gone",ipc:"310 / 311",bns:"—",t:"‘Thug’ / being a thug — omitted",g:"The archaic thuggee provisions are not re-enacted."}
+];
+
+/* ---------------- render ---------------- */
+var GROUPS=[
+  ["Mapped & renumbered",function(d){return d.s==="mapped"||d.s==="renum"||d.s==="changed"}],
+  ["New in the BNS",function(d){return d.s==="new"}],
+  ["Omitted / decriminalised",function(d){return d.s==="gone"}]
+];
+var STATUS_LABEL={mapped:"Mapped",renum:"Renumbered",changed:"Changed",new:"New in BNS",gone:"Omitted"};
+var STATUS_CLASS={mapped:"mapped",renum:"renum",changed:"changed",new:"new",gone:"gone"};
+
+var qEl=document.getElementById('q'),
+    listEl=document.getElementById('list'),
+    countEl=document.getElementById('count'),
+    emptyEl=document.getElementById('empty'),
+    clrEl=document.getElementById('clr'),
+    filtersEl=document.getElementById('filters');
+
+var activeCat="all", term="";
+
+CATS.forEach(function(c){
+  var b=document.createElement('button');
+  b.textContent=c[1]; b.dataset.cat=c[0];
+  if(c[0]==="all") b.classList.add('on');
+  b.addEventListener('click',function(){
+    activeCat=c[0];
+    [].forEach.call(filtersEl.children,function(x){x.classList.toggle('on',x.dataset.cat===activeCat)});
+    render();
+  });
+  filtersEl.appendChild(b);
+});
+
+function normNum(s){return (s||"").toLowerCase().replace(/[\s§.\-–]/g,"").replace(/section/g,"").replace(/[()]/g," ").trim();}
+function esc(s){return (s||"").replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+
+function matches(d){
+  if(activeCat!=="all" && d.f!==activeCat) return false;
+  if(!term) return true;
+  var t=term.toLowerCase().trim();
+  var hay=(d.ipc+" "+d.bns+" "+d.t+" "+d.g+" "+(d.n||"")).toLowerCase();
+  if(hay.indexOf(t)>-1) return true;
+  // numeric match: compare bare digits against each section token
+  var tn=normNum(t);
+  if(tn && /^[0-9]/.test(tn)){
+    var toks=(d.ipc+" "+d.bns).toLowerCase().split(/[\s,/]+/);
+    for(var i=0;i<toks.length;i++){
+      var kn=normNum(toks[i]);
+      if(!kn) continue;
+      if(kn===tn) return true;
+      // 302 should match "103 1" -> compare leading digits of key against query
+      if(kn.replace(/[a-z].*$/,"")===tn) return true;
+      if(kn.indexOf(tn)===0 && tn.length>=3) return true;
+    }
+  }
+  return false;
+}
+
+function hi(text){
+  if(!term) return esc(text);
+  var t=term.trim().replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  if(t.length<2) return esc(text);
+  try{return esc(text).replace(new RegExp('('+t+')','ig'),'<mark>$1</mark>');}catch(e){return esc(text);}
+}
+
+function cardHTML(d){
+  var ipc = d.ipc && d.ipc!=="—" ? '<span class="sec-tag ipc">IPC '+esc(d.ipc)+'</span>' : '<span class="sec-tag ipc">IPC —</span>';
+  var bns = d.bns && d.bns!=="—" ? '<span class="sec-tag bns">BNS '+esc(d.bns)+'</span>' : '<span class="sec-tag bns">BNS —</span>';
+  var order = d.s==="gone"
+      ? bns+' <span class="arrow">◁</span> '+ipc
+      : ipc+' <span class="arrow">▶</span> '+bns;
+  var pill='<span class="pill '+STATUS_CLASS[d.s]+'">'+STATUS_LABEL[d.s]+'</span>';
+  var catName=(CATS.filter(function(c){return c[0]===d.f})[0]||["","—"])[1];
+  return '<div class="card">'
+    + '<div class="rail">'+order+pill+'</div>'
+    + '<h3>'+hi(d.t)+'</h3>'
+    + (d.g?'<p>'+hi(d.g)+'</p>':'')
+    + (d.n?'<div class="note">'+d.n+'</div>':'')
+    + '<div class="cat-line">'+esc(catName)+'</div>'
+    + '</div>';
+}
+
+function render(){
+  var rows=DATA.filter(matches);
+  countEl.textContent = rows.length + (rows.length===1?' provision':' provisions') + (activeCat!=="all"||term?' matched':'');
+  if(!rows.length){ listEl.innerHTML=""; emptyEl.style.display="block"; return; }
+  emptyEl.style.display="none";
+  var html="";
+  GROUPS.forEach(function(g){
+    var sub=rows.filter(g[1]);
+    if(!sub.length) return;
+    // stable sort by leading IPC/BNS number
+    sub.sort(function(a,b){
+      var na=parseInt(normNum((a.ipc!=="—"?a.ipc:a.bns)))||9999;
+      var nb=parseInt(normNum((b.ipc!=="—"?b.ipc:b.bns)))||9999;
+      return na-nb;
+    });
+    html+='<div class="group-h">'+g[0]+' · '+sub.length+'</div>';
+    sub.forEach(function(d){ html+=cardHTML(d); });
+  });
+  listEl.innerHTML=html;
+}
+
+var tmr;
+qEl.addEventListener('input',function(){
+  term=qEl.value;
+  clrEl.style.display=term?'block':'none';
+  clearTimeout(tmr); tmr=setTimeout(render,90);
+  try{localStorage.setItem('leolaw-q',term)}catch(e){}
+});
+clrEl.addEventListener('click',function(){ qEl.value=""; term=""; clrEl.style.display='none'; qEl.focus(); render(); try{localStorage.removeItem('leolaw-q')}catch(e){} });
+
+try{var lq=localStorage.getItem('leolaw-q'); if(lq){qEl.value=lq; term=lq; clrEl.style.display='block';}}catch(e){}
+
+document.getElementById('rev').textContent='Module 1 · '+DATA.length+' provisions · key mappings cross-checked against devgan.in · rev. 2026-09-09 · verify against official sources before citing.';
+
+render();
+
+/* ---------------- service worker ---------------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>

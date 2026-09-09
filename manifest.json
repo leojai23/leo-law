@@ -1,0 +1,14 @@
+{
+  "name": "Leo-Law — Indian Law Reference",
+  "short_name": "Leo-Law",
+  "description": "Offline reference notebook for Indian lawyers. Module 1: BNS ⇄ IPC quick converter.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5f2ec",
+  "theme_color": "#8a1f2b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
