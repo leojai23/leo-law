@@ -14,20 +14,37 @@ Sanhita, 2023** (in force 1 July 2024).
   forgery, defamation, State offences…).
 - Three status groups: **Mapped/Renumbered**, **New in the BNS**, **Omitted/decriminalised**.
 - **Expand any card ("bare act")** for the full verbatim BNS section text — every
-  sub-section, clause, Exception, Explanation and Illustration — plus a "what
-  changed" note, the corresponding IPC number, and cross-links to related cards.
-- All **358 BNS sections** are embedded (text keyed by section number), so the
-  detail view and related-links work for every provision.
+  sub-section, clause, Exception, Explanation and Illustration — plus a
+  **BNSS First Schedule classification table** (cognizable / bailable / court),
+  a **compoundability** line (BNSS s.359), a "what changed" note, the
+  corresponding IPC number, a **provenance** line, and related-card links.
+- Compact **cognizable / bailable chips** on each card (sub-section aware).
+- All **358 BNS sections** are embedded (text keyed by section number); **288**
+  carry First Schedule classification data.
+- **Sources & method** panel at the top of the page explains what is verified.
 - 4 reading themes (Day / Sepia / Dark / Night), remembered in `localStorage`.
 - Fully offline after first load; installable to the home screen.
 
-### Source of the statutory text
-`build-scripts/` holds `parse_bns.py` (parses the official BNS bare act into
-`bns_sections.json`) and `build_detail.py` (injects it into `index.html`). The
-text is taken from the **Gazette of India** BNS 2023 (public domain under
-s.52(1)(q) Copyright Act, 1957). Still verify against `indiacode.nic.in` before
-citing. Not yet included: full IPC section text, and the BNSS First Schedule
-classification (cognizable / bailable / triable-by / compoundable) — planned.
+### Reliability / verification (9 Sep 2026 pass)
+`build-scripts/` holds the whole pipeline:
+| script | does |
+|--------|------|
+| `parse_bns.py` | official BNS bare act (Gazette/NCRB PDF) → `bns_sections.json` (all 358 sections) |
+| `parse_schedule.py` | BNSS First Schedule → `bnss_schedule.json` (classification, 288 sections) |
+| `parse_compound.py` | BNSS s.359 compounding tables → `compound.json` |
+| `reconcile.py` / `reconcile2.py` | diff the app's IPC↔BNS mappings against the official concordance (`concordance_uppolice.txt`) |
+| `make_meta.py` | merge classification + compounding → `bns_meta.json` |
+| `build_detail.py`, `build_reliability.py` | inject the JSON blobs + detail/classification UI into `index.html` |
+
+**What was verified:** BNS section text is verbatim from the public-domain Gazette
+text. Every IPC↔BNS mapping was reconciled against the official
+corresponding-sections concordance; **6 mapping errors were found and fixed**
+(IPC 116→BNS 56, 120→60, 145→189(3), 216→253, 372/373→98/99, 427→324(4)).
+Classification is from the BNSS First Schedule.
+
+**Still a finding aid, not an authority.** Not yet included: full IPC section
+text; case-law citations. Always confirm against `indiacode.nic.in` and check for
+amendments / commencement notifications (e.g. BNS 106(2)) before citing.
 
 ### Files
 | file | purpose |
