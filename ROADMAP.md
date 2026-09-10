@@ -36,7 +36,7 @@ Effort: **S** ≈ hours · **M** ≈ a session or two · **L** ≈ multi-session
 
 | # | Item | Deliverable | Effort | Status |
 |---|------|-------------|--------|--------|
-| 1.1 | **Full IPC bare-act text** | old IPC section shown verbatim beside the BNS one (currently only the number) | M | ⏸ **blocked on source** — India Code PDF 403s, legislative.gov.in refused, web.archive blocked, mirrors are ToC-only. Needs an official IPC PDF supplied, or approval to extract section-by-section from advocatekhoj (lower confidence). |
+| 1.1 | **Full IPC bare-act text** | old IPC section shown verbatim beside the BNS one (currently only the number) | M | ⏸ **parked (decision 2026-09-09)** — no authoritative IPC 1860 full-text source is reachable by the fetcher (India Code PDF 403s, legislative.gov.in refused, web.archive blocked, HTML mirrors are ToC-only). Resume when an official IPC PDF is supplied and dropped into the repo, or if we later accept section-by-section extraction from a mirror (lower confidence). Proceeding to Phase 2.1 in the meantime. |
 | 1.2 | **Second-source text diff** | diff all 358 BNS texts against a 2nd *enacted*-Act source; stamp each "text verified" | M | 🟡 **partial** — structural verification passed (358/358 sections; every heading matches the Act's own table of contents; no boundary/merge/drop errors). Full body char-diff still pending: India Code 403s and the PRS PDF is the *Bill*, not the enacted Act. |
 | 1.3 | **Punishment pull-out** | a clean "Punishment" line per sub-section, extracted from the text, not paraphrased | S | ⬜ |
 | 1.4 | **Amendment / commencement tracker** | flag provisions not yet in force or later amended (BNS 106(2) etc.); a dated "as in force on…" line | S (ongoing) | ⬜ |
@@ -51,7 +51,7 @@ Same engine and reliability method (Gazette text + official concordance + Schedu
 
 | # | Item | Notes | Effort | Status |
 |---|------|-------|--------|--------|
-| 2.1 | **BSA ⇄ Evidence Act** | 170 sections — smallest, fastest confidence-builder | M | ⬜ |
+| 2.1 | **BSA ⇄ Evidence Act** | 170 sections — smallest, fastest confidence-builder | M | 🟡 **partial** — BSA full text done & verified (170/170 sections, checked vs the Act's arrangement of sections). **Mapping blocked** on the same two-column-PDF problem as 1.1: the official BSA↔IEA concordance flattens in inconsistent column order, so auto-parsing desyncs. Needs a clean concordance or a manual pass. UI module-switcher not started. Groundwork in `build-scripts/module2-bsa/`. |
 | 2.2 | **BNSS ⇄ CrPC** | 531 sections — procedure, bail provisions, limitation for cognizance, magistrate powers | L | ⬜ |
 
 ---
@@ -123,6 +123,17 @@ Same engine and reliability method (Gazette text + official concordance + Schedu
 ---
 
 ## Changelog
+
+### 2026-09-09 — decision: park 1.1, start 2.1
+- Full IPC bare-act text (1.1) parked pending an authoritative source. Moving to
+  Phase 2.1 (BSA ⇄ Evidence Act) so momentum isn't lost. 1.1 resumes when an
+  official IPC PDF is available.
+- **2.1 groundwork:** BSA enacted-Act PDF obtained (NCRB, 98 pp); parsed all 170
+  sections (`parse_bsa.py` → `bsa_sections.json`), verified against the Act's own
+  arrangement of sections — 0 real mismatches. BSA↔IEA concordance obtained but
+  its two-column layout flattens in inconsistent order, so auto-mapping is not
+  yet reliable — same blocker class as 1.1. Groundwork parked in
+  `build-scripts/module2-bsa/`; mapping + module-switcher UI still to do.
 
 ### 2026-09-09 — Phase 1 start (partial)
 - **1.2 structural verification:** re-parsed the enacted BNS table of contents
