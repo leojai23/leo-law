@@ -36,8 +36,8 @@ Effort: **S** ≈ hours · **M** ≈ a session or two · **L** ≈ multi-session
 
 | # | Item | Deliverable | Effort | Status |
 |---|------|-------------|--------|--------|
-| 1.1 | **Full IPC bare-act text** | old IPC section shown verbatim beside the BNS one (currently only the number) | M | 🔜 |
-| 1.2 | **Second-source text diff** | diff all 358 BNS texts against India Code / PRS; resolve parser artefacts; stamp each "text verified" | M | 🔜 |
+| 1.1 | **Full IPC bare-act text** | old IPC section shown verbatim beside the BNS one (currently only the number) | M | ⏸ **blocked on source** — India Code PDF 403s, legislative.gov.in refused, web.archive blocked, mirrors are ToC-only. Needs an official IPC PDF supplied, or approval to extract section-by-section from advocatekhoj (lower confidence). |
+| 1.2 | **Second-source text diff** | diff all 358 BNS texts against a 2nd *enacted*-Act source; stamp each "text verified" | M | 🟡 **partial** — structural verification passed (358/358 sections; every heading matches the Act's own table of contents; no boundary/merge/drop errors). Full body char-diff still pending: India Code 403s and the PRS PDF is the *Bill*, not the enacted Act. |
 | 1.3 | **Punishment pull-out** | a clean "Punishment" line per sub-section, extracted from the text, not paraphrased | S | ⬜ |
 | 1.4 | **Amendment / commencement tracker** | flag provisions not yet in force or later amended (BNS 106(2) etc.); a dated "as in force on…" line | S (ongoing) | ⬜ |
 | 1.5 | **Landmark case pointers** | citation + one-line ratio only, for the top ~40 offences (*Mithu*, *Joseph Shine*, *Navtej Johar*, …) | M | ⬜ |
@@ -123,6 +123,19 @@ Same engine and reliability method (Gazette text + official concordance + Schedu
 ---
 
 ## Changelog
+
+### 2026-09-09 — Phase 1 start (partial)
+- **1.2 structural verification:** re-parsed the enacted BNS table of contents
+  from the NCRB PDF independently of the body-text parse; all 358 sections
+  present, every body heading matches the ToC heading, no boundary errors.
+  (`build-scripts/verify_toc.py`)
+- **1.1 blocked:** could not obtain an authoritative full-text IPC 1860 source
+  (India Code PDF 403; legislative.gov.in connection refused; web.archive.org
+  unavailable; HTML mirrors serve table-of-contents only). Deferred pending a
+  supplied PDF or a decision to use a lower-confidence mirror.
+- Confirmed the PRS "BNS 2023" PDF is the **Bill** (137 pp, "ARRANGEMENT OF
+  CLAUSES", s.3 = "General Explanations and expressions"), not the enacted Act —
+  not usable as a second source for a text diff.
 
 ### 2026-09-09 — reliability pass
 - Reconciled all 152 IPC↔BNS mappings against the official concordance.
