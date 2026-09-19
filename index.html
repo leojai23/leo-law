@@ -221,6 +221,60 @@ details.sources .sources-body{padding:0 .9rem .7rem;color:var(--ink-soft);line-h
 details.sources .sources-body p{margin:.5rem 0}
 details.sources .sources-body b{color:var(--ink)}
 @media(max-width:560px){.chip-cls{display:none}}
+
+/* ---------- mode toggle & suggest panel ---------- */
+.mode-toggle{
+  max-width:var(--maxw); margin:.8rem auto 0; padding:0 1rem;
+  display:flex; gap:.4rem;
+}
+.mode-toggle button{
+  flex:1; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
+  font:inherit; font-weight:600; font-size:.85rem; padding:.5rem .6rem; border-radius:.6rem; cursor:pointer;
+}
+.mode-toggle button.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.suggest-privacy{
+  max-width:var(--maxw); margin:.8rem auto 0; padding:.6rem .8rem;
+  background:var(--ok-bg); color:var(--ok); border:1px solid var(--line); border-left:3px solid var(--ok);
+  border-radius:.5rem; font-size:.82rem; line-height:1.5;
+}
+.suggest-privacy b{color:var(--ok)}
+.suggest-input{max-width:var(--maxw); margin:.7rem auto 0; padding:0 1rem}
+#caseText{
+  width:100%; box-sizing:border-box; resize:vertical; min-height:8rem;
+  background:var(--panel); color:var(--ink); border:1.5px solid var(--line); border-radius:.7rem;
+  padding:.7rem .8rem; font:inherit; font-size:.9rem; line-height:1.5;
+}
+#caseText:focus{outline:0; border-color:var(--accent)}
+.suggest-row{display:flex; align-items:center; gap:.6rem; margin-top:.55rem; flex-wrap:wrap}
+.file-btn{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink); font-size:.82rem;
+  padding:.4rem .7rem; border-radius:.5rem; cursor:pointer;
+}
+.file-btn:hover{background:var(--chip)}
+.file-name{font-size:.78rem; color:var(--ink-soft)}
+.analyze-btn{
+  background:var(--accent); color:var(--accent-ink); border:0; font:inherit; font-weight:700;
+  font-size:.85rem; padding:.5rem 1rem; border-radius:.5rem; cursor:pointer; margin-left:auto;
+}
+.analyze-btn:disabled{opacity:.5; cursor:default}
+.clear-btn{
+  background:none; border:1px solid var(--line); color:var(--ink-soft); font:inherit; font-size:.82rem;
+  padding:.5rem .8rem; border-radius:.5rem; cursor:pointer;
+}
+.suggest-disclaimer{
+  max-width:var(--maxw); margin:.7rem auto 0; padding:.6rem .8rem;
+  background:var(--warn-bg); border:1px solid var(--line); border-left:3px solid var(--warn);
+  border-radius:.5rem; color:var(--ink-soft); font-size:.8rem; line-height:1.5;
+}
+.suggest-disclaimer b{color:var(--warn)}
+.sugg-wrap{margin-bottom:.6rem}
+.sugg-meta{display:flex; align-items:center; gap:.4rem; margin-bottom:.25rem; flex-wrap:wrap}
+.sugg-score{
+  font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+  padding:.14rem .45rem; border-radius:.35rem; background:var(--accent-soft); color:var(--accent);
+}
+.sugg-terms{font-size:.74rem; color:var(--ink-soft)}
+.sugg-terms b{color:var(--ink); font-weight:600}
 </style>
 </head>
 <body>
@@ -237,6 +291,12 @@ details.sources .sources-body b{color:var(--ink)}
   </div>
 </header>
 
+<div class="mode-toggle" role="tablist">
+  <button id="modeBrowse" class="on" role="tab" aria-selected="true">Browse sections</button>
+  <button id="modeSuggest" role="tab" aria-selected="false">Suggest from case facts</button>
+</div>
+
+<div id="browseControls">
 <div class="search-wrap">
   <div class="search-box">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -247,6 +307,25 @@ details.sources .sources-body b{color:var(--ink)}
 <div class="hint">Searches both directions — an <b>IPC</b> number finds its <b>BNS</b> section and vice-versa. Also matches the offence name.</div>
 
 <div class="filters" id="filters"></div>
+</div>
+
+<div id="suggestPanel" style="display:none">
+  <div class="suggest-privacy">
+    <b>Runs entirely on this device.</b> Nothing you paste or upload is sent anywhere — there is no server, no network call. The text is held only in this tab's memory and is gone when you reload or close the page.
+  </div>
+  <div class="suggest-input">
+    <textarea id="caseText" placeholder="Paste the case facts / complaint / FIR summary here…" rows="8"></textarea>
+    <div class="suggest-row">
+      <label class="file-btn">Upload .txt<input type="file" id="caseFile" accept=".txt,text/plain" hidden></label>
+      <span class="file-name" id="caseFileName"></span>
+      <button id="analyzeBtn" class="analyze-btn">Find applicable sections</button>
+      <button id="clearCaseBtn" class="clear-btn">Clear</button>
+    </div>
+  </div>
+  <div class="suggest-disclaimer">
+    <b>Keyword-matching aid, not legal advice.</b> This ranks provisions by term overlap with the facts you enter — it does not read or reason about the facts. It will miss offences described in different words, and cannot weigh exceptions, defences or intent. Always read the full text of every suggested section, and every neighbouring section, before relying on it.
+  </div>
+</div>
 
 <div class="disclaimer">
   <b>Study aid — verify before relying on it.</b> Not legal advice. The BNS renumbers most offences into sub-sections and a few are not 1:1. The mappings here were spot-checked against <b>devgan.in</b> bare-act text, but always confirm against the official <b>Gazette</b> / <b>India Code</b> and the MHA IPC–BNS chart before citing in court or pleadings. BNS/BNSS/BSA came into force on <b>1 July 2024</b>; the IPC continues to apply to offences committed before that date.
@@ -733,6 +812,157 @@ listEl.addEventListener('click',function(e){
   } else {
     det.hidden=true;
   }
+});
+
+/* ---------------- case-sheet suggest engine (100% local, no network) ---------------- */
+var STOP_EN = {};
+"a an and are as at be by for from had has have if in into is it its of on or that the their there these this to was were will with which who whom whose not no shall may can could would should been being do does did done also under any such upon within without between about above after before during than then thus each other same own more most much many few both either neither per".split(" ").forEach(function(w){STOP_EN[w]=1;});
+var EMPTY_BROWSE_TXT = "No section matches that. Try a bare number, or a shorter keyword.";
+var EMPTY_SUGGEST_IDLE = "Paste or upload case facts above, then click “Find applicable sections”.";
+var EMPTY_SUGGEST_NONE = "No matching provisions found. Try adding more specific facts, or check the spelling of key terms.";
+
+function stem(w){
+  // light suffix-stripping so "robbed"/"robbery"/"robbing" etc. collide -- never invents matches,
+  // only widens the same word's forms, so it cannot introduce a false positive on its own.
+  if(w.length>6 && /ies$/.test(w)) return w.slice(0,-3)+'y';
+  if(w.length>6 && /ying$/.test(w)) return w.slice(0,-4)+'y';
+  if(w.length>6 && /ing$/.test(w)) return w.slice(0,-3);
+  if(w.length>6 && /ery$/.test(w)) return w.slice(0,-3);
+  if(w.length>5 && /ed$/.test(w) && !/eed$/.test(w)) return w.slice(0,-2);
+  if(w.length>5 && /es$/.test(w)) return w.slice(0,-2);
+  if(w.length>4 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0,-1);
+  return w;
+}
+function tokWords(s){
+  return ((s||"").toLowerCase().match(/[a-z][a-z']{2,}/g)||[]).filter(function(w){ return !STOP_EN[w]; }).map(stem);
+}
+
+var SUGG_INDEX=null;
+function dropIllustrations(txt){
+  return (txt||"").split(/\n\n+/).filter(function(p){
+    return !/^(Illustrations?\.|Illustration\.)/.test(p.trim());
+  }).join(" ");
+}
+
+function buildSuggestIndex(){
+  // "core" = our curated, concise fields (title/gist/note/BNS heading) -- specific and low-noise.
+  // "body" = the statutory definition text (illustrations stripped) -- richer but noisier, weighted down,
+  // and never enough on its own to qualify a result (see scoreCaseText's gating).
+  var docs=[], df={};
+  DATA.forEach(function(d,i){
+    var coreTf={}, bodyTf={};
+    function add(tf,str,w){ tokWords(str).forEach(function(t){ tf[t]=(tf[t]||0)+w; }); }
+    add(coreTf,d.t,5); add(coreTf,d.g,3); if(d.n) add(coreTf,d.n.replace(/<[^>]+>/g,' '),2);
+    bnsNums(d).forEach(function(n){
+      var s=BNS_TEXT[n];
+      if(s){ add(coreTf,s.heading,3); add(bodyTf,dropIllustrations(s.text).slice(0,900),1); }
+    });
+    var terms={}; Object.keys(coreTf).forEach(function(t){terms[t]=1;}); Object.keys(bodyTf).forEach(function(t){terms[t]=1;});
+    Object.keys(terms).forEach(function(t){ df[t]=(df[t]||0)+1; });
+    docs.push({i:i, coreTf:coreTf, bodyTf:bodyTf, len:Object.keys(terms).length||1});
+  });
+  var N=docs.length, idf={};
+  Object.keys(df).forEach(function(t){ idf[t]=Math.log((N+1)/(df[t]+0.5)); });
+  SUGG_INDEX={docs:docs, idf:idf};
+}
+
+var SUGG_SCORE_FLOOR=1.1;   // calibrated against known true/false-positive fact patterns
+function scoreCaseText(text){
+  if(!SUGG_INDEX) buildSuggestIndex();
+  var qtf={};
+  tokWords(text).forEach(function(t){ qtf[t]=(qtf[t]||0)+1; });
+  var qterms=Object.keys(qtf);
+  if(!qterms.length) return [];
+  var lowerText=(text||"").toLowerCase();
+  var results=[];
+  SUGG_INDEX.docs.forEach(function(doc){
+    var d=DATA[doc.i];
+    var coreScore=0, bodyScore=0, coreHits=0, matched=[];
+    qterms.forEach(function(t){
+      var idfv=SUGG_INDEX.idf[t]||0.3, qw=Math.min(qtf[t],4);
+      var hit=false;
+      if(doc.coreTf[t]){ coreScore += qw*doc.coreTf[t]*idfv/Math.sqrt(doc.len); hit=true; coreHits++; }
+      if(doc.bodyTf[t]){ bodyScore += qw*doc.bodyTf[t]*idfv/Math.sqrt(doc.len); hit=true; }
+      if(hit) matched.push(t);
+    });
+    var phraseHit=false;
+    var titleCore=(d.t||'').toLowerCase().replace(/[—(].*$/,'').trim();
+    if(titleCore.length>6 && lowerText.indexOf(titleCore)>-1){ coreScore+=8; phraseHit=true; }
+    bnsNums(d).forEach(function(n){
+      var s=BNS_TEXT[n];
+      if(s){
+        var h=s.heading.toLowerCase();
+        if(h.length>6 && lowerText.indexOf(h)>-1){ coreScore+=6; phraseHit=true; }
+      }
+    });
+    var score = coreScore + bodyScore*0.35;
+    // gate: never surface a result on coincidental body-text overlap alone, and never on a single
+    // stray word match -- at least 2 distinct terms must land in our curated title/gist/note/heading
+    // fields (or an exact phrase must match), before a row qualifies at all.
+    var qualifies = phraseHit || (coreHits>=2 && score>=SUGG_SCORE_FLOOR);
+    if(qualifies){
+      matched.sort(function(a,b){
+        return (Math.max(doc.coreTf[b]||0,doc.bodyTf[b]||0)*(SUGG_INDEX.idf[b]||0))
+             - (Math.max(doc.coreTf[a]||0,doc.bodyTf[a]||0)*(SUGG_INDEX.idf[a]||0));
+      });
+      results.push({d:d, score:score, matched:matched.slice(0,6)});
+    }
+  });
+  results.sort(function(a,b){ return b.score-a.score; });
+  return results.slice(0,18);
+}
+
+function renderSuggestions(results){
+  if(!results.length){
+    listEl.innerHTML='';
+    emptyEl.style.display='block';
+    emptyEl.textContent = caseText.value.trim() ? EMPTY_SUGGEST_NONE : EMPTY_SUGGEST_IDLE;
+    countEl.textContent='';
+    return;
+  }
+  emptyEl.style.display='none';
+  var maxScore=results[0].score||1;
+  var html='<div class="group-h">Suggested provisions · '+results.length+'</div>';
+  results.forEach(function(r){
+    var pct=Math.max(1,Math.min(100, Math.round(100*r.score/maxScore)));
+    html+='<div class="sugg-wrap"><div class="sugg-meta"><span class="sugg-score">'+pct+'% match</span>'
+        + (r.matched.length?'<span class="sugg-terms">matched: '+r.matched.map(function(m){return '<b>'+esc(m)+'</b>';}).join(', ')+'</span>':'')
+        + '</div>'+cardHTML(r.d)+'</div>';
+  });
+  listEl.innerHTML=html;
+  countEl.textContent=results.length+' suggested provision'+(results.length===1?'':'s')+' — ranked by term overlap, not legal reasoning';
+}
+
+var modeBrowseBtn=document.getElementById('modeBrowse'), modeSuggestBtn=document.getElementById('modeSuggest');
+var browseControls=document.getElementById('browseControls'), suggestPanel=document.getElementById('suggestPanel');
+var caseText=document.getElementById('caseText'), caseFile=document.getElementById('caseFile'), caseFileName=document.getElementById('caseFileName');
+var analyzeBtn=document.getElementById('analyzeBtn'), clearCaseBtn=document.getElementById('clearCaseBtn');
+var mode='browse';
+
+function setMode(m){
+  mode=m;
+  modeBrowseBtn.classList.toggle('on', m==='browse');
+  modeSuggestBtn.classList.toggle('on', m==='suggest');
+  modeBrowseBtn.setAttribute('aria-selected', m==='browse'?'true':'false');
+  modeSuggestBtn.setAttribute('aria-selected', m==='suggest'?'true':'false');
+  browseControls.style.display = m==='browse' ? '' : 'none';
+  suggestPanel.style.display = m==='suggest' ? '' : 'none';
+  if(m==='browse'){ emptyEl.textContent=EMPTY_BROWSE_TXT; render(); }
+  else { renderSuggestions(caseText.value.trim() ? scoreCaseText(caseText.value) : []); }
+}
+modeBrowseBtn.addEventListener('click',function(){ setMode('browse'); });
+modeSuggestBtn.addEventListener('click',function(){ setMode('suggest'); });
+analyzeBtn.addEventListener('click',function(){ renderSuggestions(scoreCaseText(caseText.value)); });
+clearCaseBtn.addEventListener('click',function(){
+  caseText.value=''; caseFile.value=''; caseFileName.textContent=''; renderSuggestions([]); caseText.focus();
+});
+caseFile.addEventListener('change',function(){
+  var f=caseFile.files && caseFile.files[0];
+  if(!f) return;
+  caseFileName.textContent=f.name;
+  var reader=new FileReader();
+  reader.onload=function(){ caseText.value=String(reader.result||''); };
+  reader.readAsText(f);
 });
 
 /* ---------------- service worker ---------------- */

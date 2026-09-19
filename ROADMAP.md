@@ -65,6 +65,7 @@ Same engine and reliability method (Gazette text + official concordance + Schedu
 | 3.3 | **Limitation Act ready-reckoner** | searchable table of the ~137 Articles (period + when time runs) | S | ⬜ |
 | 3.4 | **Court-fees & suit valuation** | Central Act first, then TN (see Phase 4) | M | ⬜ |
 | 3.5 | **Standard drafts & checklists** | plaint, WS, bail application, 138 complaint, vakalat | M | ⬜ |
+| 3.6 | **Suggest from case facts** | paste/upload case-sheet text → ranked candidate provisions, offline keyword-overlap engine (no network, nothing stored) | M | ✅ **done** 2026-09-09 |
 
 ---
 
@@ -123,6 +124,33 @@ Same engine and reliability method (Gazette text + official concordance + Schedu
 ---
 
 ## Changelog
+
+### 2026-09-09 — 3.6 Suggest from case facts
+- New mode toggle: **Browse sections** / **Suggest from case facts**. In suggest
+  mode, paste or upload (`.txt`) case-sheet text and get a ranked list of
+  candidate provisions built from the *existing* embedded data (152 rows + 358
+  BNS section texts) — no new data, no network call, nothing persisted.
+- **Design (client-side, no dependencies):** a compact TF-IDF-style scorer over
+  two weighted fields per provision — a "core" field (title/gist/note/BNS
+  heading, high weight) and a "body" field (the BNS definition text with
+  Illustrations stripped, low weight). Light suffix-stemming so
+  robbed/robbing/robbery collide.
+- **Reliability calibration — the important part.** The first version was
+  actively dangerous: unrelated text ("my neighbour parked his car…") scored
+  *higher* than genuine matches and confidently topped with "Marrying again
+  during the lifetime of a spouse." Fixed by (1) excluding Illustrations from
+  the index (they use everyday scenario words that caused false hits), (2)
+  gating every result on **≥2 distinct term matches in the curated core
+  fields** (title/gist/heading) or an exact phrase match — a single stray word
+  can never qualify a result on its own. Verified against 6+ unrelated fact
+  patterns (all now return zero results) and 8+ genuine fact patterns
+  (dowry, 420 cheating, acid attack, stalking, rape, theft, murder — all
+  surface the right provision at or near #1). Chose **precision over recall**:
+  it will go silent rather than guess wrong when the case text's wording
+  diverges a lot from the statutory vocabulary (a documented, disclosed
+  limitation) — the wrong trade-off for a lawyer's tool is a confident wrong
+  answer, not a missed one.
+- `sw` cache → `leo-law-v5`.
 
 ### 2026-09-09 — decision: park 1.1, start 2.1
 - Full IPC bare-act text (1.1) parked pending an authoritative source. Moving to

@@ -1,5 +1,5 @@
 /* Leo-Law service worker — cache-first, bump CACHE on every content change */
-var CACHE = "leo-law-v4";
+var CACHE = "leo-law-v5";
 var ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 self.addEventListener("install", function(e){
   self.skipWaiting();

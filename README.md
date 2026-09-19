@@ -22,6 +22,13 @@ Sanhita, 2023** (in force 1 July 2024).
 - All **358 BNS sections** are embedded (text keyed by section number); **288**
   carry First Schedule classification data.
 - **Sources & method** panel at the top of the page explains what is verified.
+- **"Suggest from case facts"** mode: paste or upload (.txt) case facts and get a
+  ranked list of candidate provisions, with the matched terms shown. Runs
+  **entirely in the browser** — no network call, nothing is sent or stored.
+  It is a keyword-overlap aid, not legal reasoning: tuned to stay silent
+  (precision over recall) rather than confidently suggest a wrong section on
+  unrelated text — verified against several irrelevant fact patterns during
+  development. See `ROADMAP.md` for the scoring design.
 - 4 reading themes (Day / Sepia / Dark / Night), remembered in `localStorage`.
 - Fully offline after first load; installable to the home screen.
 
