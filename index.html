@@ -70,6 +70,38 @@ header{
   cursor:pointer; padding:0; font-size:.85rem; background:var(--panel); color:var(--ink-soft);
 }
 .themes button.on{border-color:var(--accent); color:var(--accent); font-weight:700}
+.settings-btn{
+  width:1.7rem; height:1.7rem; border-radius:.45rem; border:1px solid var(--line);
+  cursor:pointer; padding:0; font-size:.95rem; background:var(--panel); color:var(--ink-soft);
+}
+
+/* ---------- settings modal ---------- */
+.settings-overlay{
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:50;
+  align-items:center; justify-content:center; padding:1rem;
+}
+.settings-overlay.open{display:flex}
+.settings-modal{
+  position:relative; background:var(--panel); border-radius:.8rem; box-shadow:var(--shadow);
+  max-width:22rem; width:100%; padding:1.1rem 1.2rem 1.3rem;
+}
+.settings-modal h3{margin:0 0 .8rem; font-size:1.05rem}
+.settings-close-x{
+  position:absolute; top:.6rem; right:.6rem; border:0; background:none; color:var(--ink-soft);
+  font-size:1.1rem; cursor:pointer; padding:.3rem; line-height:1;
+}
+.settings-row{
+  display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+  padding:.55rem 0; border-bottom:1px solid var(--line); font-size:.88rem;
+}
+.settings-row .label{color:var(--ink-soft)}
+.settings-row .value{font-weight:600; font-family:ui-monospace,Consolas,monospace}
+.settings-actions{display:flex; flex-direction:column; gap:.5rem; margin-top:.9rem}
+.settings-actions button{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink);
+  border-radius:.5rem; padding:.55rem .8rem; font:inherit; font-size:.88rem; cursor:pointer;
+}
+.settings-actions button.danger{color:var(--gone); border-color:var(--gone)}
 
 /* ---------- search zone ---------- */
 .search-wrap{max-width:var(--maxw); margin:0 auto; padding:.8rem 1rem 0}
@@ -288,8 +320,24 @@ details.sources .sources-body b{color:var(--ink)}
       <button data-t="dark" title="Dark">☾</button>
       <button data-t="night" title="Night">★</button>
     </div>
+    <button class="settings-btn" id="settingsBtn" title="Settings" aria-label="Settings">⚙</button>
   </div>
 </header>
+
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <button class="settings-close-x" id="settingsCloseX" aria-label="Close settings">×</button>
+    <h3 id="settingsTitle">Settings</h3>
+    <div class="settings-row">
+      <span class="label">Version</span>
+      <span class="value" id="settingsVersion"></span>
+    </div>
+    <div class="settings-actions">
+      <button id="checkUpdatesBtn">Check for updates</button>
+      <button id="closeAppBtn" class="danger">Close app</button>
+    </div>
+  </div>
+</div>
 
 <div class="mode-toggle" role="tablist">
   <button id="modeBrowse" class="on" role="tab" aria-selected="true">Browse sections</button>
@@ -969,6 +1017,63 @@ caseFile.addEventListener('change',function(){
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
 }
+
+/* ---------------- settings panel ---------------- */
+var CURRENT_VERSION = 'leo-law-v6';
+
+(function(){
+  var __intentionalClose = false;
+  window.addEventListener('beforeunload', function(e){
+    if (__intentionalClose) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
+  window.__confirmAppClose = function(){
+    if (confirm('Close Leo-Law? Your data is already saved automatically.')) {
+      __intentionalClose = true;
+      window.close();
+    }
+  };
+})();
+
+window.__checkForUpdates = function(){
+  if (!('serviceWorker' in navigator)) { alert('Service workers are not supported in this browser.'); return; }
+  navigator.serviceWorker.getRegistration().then(function(reg){
+    if (!reg) { alert('No service worker registered.'); return; }
+    reg.update().then(function(){
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        reg.waiting.addEventListener('statechange', function(){
+          if (reg.waiting === null) location.reload();
+        });
+      } else {
+        alert("You're on the latest version (" + CURRENT_VERSION + ").");
+      }
+    });
+  });
+};
+
+(function(){
+  var settingsBtn = document.getElementById('settingsBtn');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  var settingsCloseX = document.getElementById('settingsCloseX');
+  var settingsVersion = document.getElementById('settingsVersion');
+  var checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
+  var closeAppBtn = document.getElementById('closeAppBtn');
+
+  settingsVersion.textContent = CURRENT_VERSION;
+
+  function openSettings(){ settingsOverlay.classList.add('open'); }
+  function closeSettings(){ settingsOverlay.classList.remove('open'); }
+
+  settingsBtn.addEventListener('click', openSettings);
+  settingsCloseX.addEventListener('click', closeSettings);
+  settingsOverlay.addEventListener('click', function(e){ if (e.target === settingsOverlay) closeSettings(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && settingsOverlay.classList.contains('open')) closeSettings(); });
+
+  checkUpdatesBtn.addEventListener('click', function(){ window.__checkForUpdates(); });
+  closeAppBtn.addEventListener('click', function(){ window.__confirmAppClose(); });
+})();
 </script>
 </body>
 </html>

@@ -1,9 +1,12 @@
 /* Leo-Law service worker — cache-first, bump CACHE on every content change */
-var CACHE = "leo-law-v5";
+var CACHE = "leo-law-v6";
 var ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 self.addEventListener("install", function(e){
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(ASSETS); }));
+});
+self.addEventListener("message", function(event){
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 self.addEventListener("activate", function(e){
   e.waitUntil(caches.keys().then(function(keys){
